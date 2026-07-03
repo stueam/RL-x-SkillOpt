@@ -196,9 +196,13 @@ def discover_erdos_min_overlap():
         env_type=ErdosMinOverlapEnv,
         problem_type="",
         num_cpus_per_task=1,
-        eval_timeout=1100,
-        experiment_name=f"test-erdos-min-overlap-run",
-        wandb_project="erdos-min-overlap",
+        eval_timeout=600,
+        experiment_name=f"test-erdos-min-overlap-local",
+        wandb_project="",
+        num_epochs=3,              # 50 → 3
+        group_size=4,              # 64 → 4
+        groups_per_batch=1,        # 8 → 1
+        phase1_max_tokens=8192,    # 26000 → 8192
     )
 
     discover(config)

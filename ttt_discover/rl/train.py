@@ -583,7 +583,7 @@ async def do_sync_training(
                     )
             }
         
-        if len(ml_logger.loggers) >= 2:
+        if len(ml_logger.loggers) >= 3:
             if train_table is not None and isinstance(ml_logger.loggers[2], WandbLogger):
                 ml_logger.loggers[2].log_metrics(train_table, step=i_batch)
             if test_table is not None and isinstance(ml_logger.loggers[2], WandbLogger):

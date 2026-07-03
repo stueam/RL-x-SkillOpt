@@ -149,7 +149,11 @@ def discover_circle_packing(num_circles: str):
         num_cpus_per_task=1,
         eval_timeout=530,
         experiment_name=f"test-circle-packing-{num_circles}-run",
-        wandb_project="circle-packing",
+        wandb_project="",
+        num_epochs=16,                 # 50 → 3
+        group_size=8,                 # 64 → 4
+        groups_per_batch=2,           # 8 → 1
+        phase1_max_tokens=8192,       # 26000 → 8192
     )
 
     # Run discovery
