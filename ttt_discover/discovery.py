@@ -18,10 +18,11 @@ class DiscoverConfig:
     """Simple config for discovery with RL training."""
 
     # Model config
-    model_name: str = "openai/gpt-oss-120b"
+    model_name: str = "qwen/qwen3.6-35b-a3b"
     lora_rank: int = 32
-    renderer_name: str | None = "gpt_oss_high_reasoning"
+    renderer_name: str | None = "qwen3"
     save_every: int = 2
+    context_window: int = 32768  # Model context window size
 
     # Training hyperparameters
     group_size: int = 64
@@ -30,7 +31,7 @@ class DiscoverConfig:
     num_epochs: int = 50
     temperature: float = 1.0
     kl_penalty_coef: float = 0.1
-    phase1_max_tokens: int = 26000  # Two-phase sampling: total prompt + thinking token budget
+    phase1_max_tokens: int = 26000  # Output token budget (for two-phase: Phase 1 ceiling; for single-phase: total generation budget)
 
     # Misc config
     experiment_name: str | None = None
@@ -43,13 +44,13 @@ class DiscoverConfig:
     eval_timeout: int = 1000
 
 
-def init_ray(num_cpus_per_task: int, env_type: str):
+def init_ray(num_cpus_per_task: int, env_type: type):
     import ray
 
     if not ray.is_initialized():
-        ray.init()
+        ray.init(num_cpus=8)
     else:
-        if env_type.__name__ != "AhcEnv":
+        if getattr(env_type, "__name__", None) != "AhcEnv":
             ray.init("auto")
 
     try:
@@ -70,8 +71,6 @@ def init_ray(num_cpus_per_task: int, env_type: str):
 
 async def discover_impl(config: DiscoverConfig):
     """Convert discover config to full config and run training."""
-
-    assert config.model_name in {"openai/gpt-oss-120b", "openai/gpt-oss-20b"}, "Only supporting GPT-OSS models for now."
 
     # Ray is needed to dispatch jobs across cpus
     if config.num_cpus_per_task > 0:
@@ -121,6 +120,7 @@ async def discover_impl(config: DiscoverConfig):
         adv_estimator_beta=2.0, # Unused with entropic_adaptive_beta
         remove_constant_reward_groups=True,
         phase1_max_tokens=config.phase1_max_tokens,
+        context_window=config.context_window,
         local_model_path=None,
     )
 

@@ -1,0 +1,136 @@
+INFO:ttt_discover.discovery:Logging to ./tinker_log/test-circle-packing-26-run/train.log
+INFO:ttt_discover.tinker_utils.ml_log:
+[1;36mConfiguration:[0m
+  env_type: [1m<[0m[1;95mclass[0m[39m [0m[32m'examples.circle_packing.env.CirclePackingEnv'[0m[1m>[0m
+  problem_type: [32m'26'[0m
+  learning_rate: [1;36m4e-05[0m
+  dataset_builder: [1m{[0m[32m'config'[0m: [1;35mDatasetConfig[0m[1m([0m[33mproblem_type[0m=[32m'26'[0m, [33menv_type[0m=[1m<[0m[1;95mclass[0m[39m [0m
+[32m'examples.circle_packing.env.CirclePackingEnv'[0m[1m>[0m, [33mbatch_size[0m=[1;36m2[0m, model [33m...[0m [33mimeout[0m=[1;36m530[0m, 
+[33mlog_path[0m=[32m'./tinker_log/test-circle-packing-26-run'[0m, [33mtimeout[0m=[1;36m8000[0m[1;36m.0[0m, [33mconvo_prefix[0m=[3;35mNone[0m, [33mgpu_mode_score_scale[0m=[1;36m3000[0m[1;36m.0[0m[1m)[0m[1m}[0m
+  model_name: [32m'openai/gpt-oss-120b'[0m
+  num_epochs: [1;36m15[0m
+  temperature: [1;36m1.0[0m
+  lora_rank: [1;36m32[0m
+  adv_estimator: [32m'entropic_adaptive_beta'[0m
+  adv_estimator_beta: [1;36m2.0[0m
+  kl_penalty_coef: [1;36m0.1[0m
+  loss_fn: [32m'importance_sampling'[0m
+  num_substeps: [1;36m1[0m
+  wandb_project: [32m''[0m
+  wandb_name: [32m'test-circle-packing-26-run'[0m
+  log_path: [32m'./tinker_log/test-circle-packing-26-run'[0m
+  enable_trace: [3;91mFalse[0m
+  remove_constant_reward_groups: [3;92mTrue[0m
+  save_every: [1;36m2[0m
+  load_checkpoint_path: [3;35mNone[0m
+  phase1_max_tokens: [1;36m10000[0m
+  local_model_path: [3;35mNone[0m
+INFO:ttt_discover.discovery:Logging to ./tinker_log/test-circle-packing-26-run/train.log
+INFO:ttt_discover.tinker_utils.ml_log:
+[1;36mConfiguration:[0m
+  env_type: [1m<[0m[1;95mclass[0m[39m [0m[32m'examples.circle_packing.env.CirclePackingEnv'[0m[1m>[0m
+  problem_type: [32m'26'[0m
+  learning_rate: [1;36m4e-05[0m
+  dataset_builder: [1m{[0m[32m'config'[0m: [1;35mDatasetConfig[0m[1m([0m[33mproblem_type[0m=[32m'26'[0m, [33menv_type[0m=[1m<[0m[1;95mclass[0m[39m [0m
+[32m'examples.circle_packing.env.CirclePackingEnv'[0m[1m>[0m, [33mbatch_size[0m=[1;36m2[0m, model [33m...[0m [33mimeout[0m=[1;36m530[0m, 
+[33mlog_path[0m=[32m'./tinker_log/test-circle-packing-26-run'[0m, [33mtimeout[0m=[1;36m8000[0m[1;36m.0[0m, [33mconvo_prefix[0m=[3;35mNone[0m, [33mgpu_mode_score_scale[0m=[1;36m3000[0m[1;36m.0[0m[1m)[0m[1m}[0m
+  model_name: [32m'openai/gpt-oss-120b'[0m
+  num_epochs: [1;36m15[0m
+  temperature: [1;36m1.0[0m
+  lora_rank: [1;36m32[0m
+  adv_estimator: [32m'entropic_adaptive_beta'[0m
+  adv_estimator_beta: [1;36m2.0[0m
+  kl_penalty_coef: [1;36m0.1[0m
+  loss_fn: [32m'importance_sampling'[0m
+  num_substeps: [1;36m1[0m
+  wandb_project: [32m''[0m
+  wandb_name: [32m'test-circle-packing-26-run'[0m
+  log_path: [32m'./tinker_log/test-circle-packing-26-run'[0m
+  enable_trace: [3;91mFalse[0m
+  remove_constant_reward_groups: [3;92mTrue[0m
+  save_every: [1;36m2[0m
+  load_checkpoint_path: [3;35mNone[0m
+  phase1_max_tokens: [1;36m10000[0m
+  local_model_path: [3;35mNone[0m
+INFO:ttt_discover.discovery:Logging to ./tinker_log/test-circle-packing-26-run/train.log
+INFO:ttt_discover.tinker_utils.ml_log:
+[1;36mConfiguration:[0m
+  env_type: [1m<[0m[1;95mclass[0m[39m [0m[32m'examples.circle_packing.env.CirclePackingEnv'[0m[1m>[0m
+  problem_type: [32m'26'[0m
+  learning_rate: [1;36m4e-05[0m
+  dataset_builder: [1m{[0m[32m'config'[0m: [1;35mDatasetConfig[0m[1m([0m[33mproblem_type[0m=[32m'26'[0m, [33menv_type[0m=[1m<[0m[1;95mclass[0m[39m [0m
+[32m'examples.circle_packing.env.CirclePackingEnv'[0m[1m>[0m, [33mbatch_size[0m=[1;36m2[0m, model [33m...[0m [33mimeout[0m=[1;36m530[0m, 
+[33mlog_path[0m=[32m'./tinker_log/test-circle-packing-26-run'[0m, [33mtimeout[0m=[1;36m8000[0m[1;36m.0[0m, [33mconvo_prefix[0m=[3;35mNone[0m, [33mgpu_mode_score_scale[0m=[1;36m3000[0m[1;36m.0[0m[1m)[0m[1m}[0m
+  model_name: [32m'openai/gpt-oss-120b'[0m
+  num_epochs: [1;36m15[0m
+  temperature: [1;36m1.0[0m
+  lora_rank: [1;36m32[0m
+  adv_estimator: [32m'entropic_adaptive_beta'[0m
+  adv_estimator_beta: [1;36m2.0[0m
+  kl_penalty_coef: [1;36m0.1[0m
+  loss_fn: [32m'importance_sampling'[0m
+  num_substeps: [1;36m1[0m
+  wandb_project: [32m''[0m
+  wandb_name: [32m'test-circle-packing-26-run'[0m
+  log_path: [32m'./tinker_log/test-circle-packing-26-run'[0m
+  enable_trace: [3;91mFalse[0m
+  remove_constant_reward_groups: [3;92mTrue[0m
+  save_every: [1;36m2[0m
+  load_checkpoint_path: [3;35mNone[0m
+  phase1_max_tokens: [1;36m10000[0m
+  local_model_path: [3;35mNone[0m
+INFO:ttt_discover.discovery:Logging to ./tinker_log/test-circle-packing-26-run/train.log
+INFO:ttt_discover.tinker_utils.ml_log:
+[1;36mConfiguration:[0m
+  env_type: [1m<[0m[1;95mclass[0m[39m [0m[32m'examples.circle_packing.env.CirclePackingEnv'[0m[1m>[0m
+  problem_type: [32m'26'[0m
+  learning_rate: [1;36m4e-05[0m
+  dataset_builder: [1m{[0m[32m'config'[0m: [1;35mDatasetConfig[0m[1m([0m[33mproblem_type[0m=[32m'26'[0m, [33menv_type[0m=[1m<[0m[1;95mclass[0m[39m [0m
+[32m'examples.circle_packing.env.CirclePackingEnv'[0m[1m>[0m, [33mbatch_size[0m=[1;36m2[0m, model [33m...[0m [33mimeout[0m=[1;36m530[0m, 
+[33mlog_path[0m=[32m'./tinker_log/test-circle-packing-26-run'[0m, [33mtimeout[0m=[1;36m8000[0m[1;36m.0[0m, [33mconvo_prefix[0m=[3;35mNone[0m, [33mgpu_mode_score_scale[0m=[1;36m3000[0m[1;36m.0[0m[1m)[0m[1m}[0m
+  model_name: [32m'openai/gpt-oss-120b'[0m
+  num_epochs: [1;36m15[0m
+  temperature: [1;36m1.0[0m
+  lora_rank: [1;36m32[0m
+  adv_estimator: [32m'entropic_adaptive_beta'[0m
+  adv_estimator_beta: [1;36m2.0[0m
+  kl_penalty_coef: [1;36m0.1[0m
+  loss_fn: [32m'importance_sampling'[0m
+  num_substeps: [1;36m1[0m
+  wandb_project: [32m''[0m
+  wandb_name: [32m'test-circle-packing-26-run'[0m
+  log_path: [32m'./tinker_log/test-circle-packing-26-run'[0m
+  enable_trace: [3;91mFalse[0m
+  remove_constant_reward_groups: [3;92mTrue[0m
+  save_every: [1;36m2[0m
+  load_checkpoint_path: [3;35mNone[0m
+  phase1_max_tokens: [1;36m10000[0m
+  local_model_path: [3;35mNone[0m
+INFO:ttt_discover.discovery:Logging to ./tinker_log/test-circle-packing-26-run/train.log
+INFO:ttt_discover.tinker_utils.ml_log:
+Configuration:
+  env_type: <class 'examples.circle_packing.env.CirclePackingEnv'>
+  problem_type: '26'
+  learning_rate: 4e-05
+  dataset_builder: {'config': DatasetConfig(problem_type='26', env_type=<class 
+'examples.circle_packing.env.CirclePackingEnv'>, batch_size=2, model ... 
+imeout=530, log_path='./tinker_log/test-circle-packing-26-run', timeout=8000.0, 
+convo_prefix=None, gpu_mode_score_scale=3000.0)}
+  model_name: 'openai/gpt-oss-120b'
+  num_epochs: 15
+  temperature: 1.0
+  lora_rank: 32
+  adv_estimator: 'entropic_adaptive_beta'
+  adv_estimator_beta: 2.0
+  kl_penalty_coef: 0.1
+  loss_fn: 'importance_sampling'
+  num_substeps: 1
+  wandb_project: ''
+  wandb_name: 'test-circle-packing-26-run'
+  log_path: './tinker_log/test-circle-packing-26-run'
+  enable_trace: False
+  remove_constant_reward_groups: True
+  save_every: 2
+  load_checkpoint_path: None
+  phase1_max_tokens: 10000
+  local_model_path: None

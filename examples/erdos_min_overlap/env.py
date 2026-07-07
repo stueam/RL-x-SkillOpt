@@ -199,10 +199,10 @@ def discover_erdos_min_overlap():
         eval_timeout=600,
         experiment_name=f"test-erdos-min-overlap-local",
         wandb_project="",
-        num_epochs=3,              # 50 → 3
+        num_epochs=8,              # 50 → 3
         group_size=4,              # 64 → 4
-        groups_per_batch=1,        # 8 → 1
-        phase1_max_tokens=8192,    # 26000 → 8192
+        groups_per_batch=2,        # 8 → 1
+        phase1_max_tokens=10000,    # 26000 → 8192
     )
 
     discover(config)

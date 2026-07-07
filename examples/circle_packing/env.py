@@ -150,10 +150,10 @@ def discover_circle_packing(num_circles: str):
         eval_timeout=530,
         experiment_name=f"test-circle-packing-{num_circles}-run",
         wandb_project="",
-        num_epochs=16,                 # 50 → 3
+        num_epochs=15,                 # 50 → 3
         group_size=8,                 # 64 → 4
         groups_per_batch=2,           # 8 → 1
-        phase1_max_tokens=8192,       # 26000 → 8192
+        phase1_max_tokens=10000,       # 26000 → 8192
     )
 
     # Run discovery

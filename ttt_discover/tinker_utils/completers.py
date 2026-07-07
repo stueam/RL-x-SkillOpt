@@ -45,6 +45,39 @@ class TokenCompleter:
 
 
 @dataclass
+class SinglePhaseTokenCompleter(TokenCompleter):
+    """
+    Single-phase completer for Qwen and other standard models.
+    Generates tokens in one shot up to max_tokens, respecting stop sequences.
+    Uses full context window dynamically.
+    """
+    sampling_client: tinker.SamplingClient
+    tokenizer: Tokenizer
+    max_tokens: int  # Total output token budget
+    temperature: float = 1.0
+    context_window: int = 32768
+    context_buffer: int = 50
+
+    async def __call__(self, model_input: tinker.ModelInput, stop: StopCondition) -> TokensWithLogprobs:
+        prompt_length = model_input.length
+        max_gen = min(self.max_tokens, self.context_window - prompt_length - self.context_buffer)
+        if max_gen <= 0:
+            raise ValueError(
+                f"Prompt length {prompt_length} with context_window {self.context_window} "
+                f"leaves no room for generation."
+            )
+
+        result = await self.sampling_client.sample_async(
+            prompt=model_input,
+            num_samples=1,
+            sampling_params=tinker.SamplingParams(stop=stop, max_tokens=max_gen, temperature=self.temperature),
+        )
+        tokens = result.sequences[0].tokens
+        logprobs = result.sequences[0].logprobs
+        return TokensWithLogprobs(tokens=tokens, maybe_logprobs=logprobs)
+
+
+@dataclass
 class TwoPhaseTokenCompleter(TokenCompleter):
     """
     Two-phase completer for gpt-oss: if Phase 1 exhausts tokens without stop, Phase 2 forces final answer.

@@ -16,7 +16,7 @@ import tinker
 import torch
 from tinker.types import LossFnType
 from ttt_discover.tinker_utils.misc_utils import get_last_checkpoint, save_checkpoint_async
-from ttt_discover.tinker_utils.completers import TwoPhaseTokenCompleter
+from ttt_discover.tinker_utils.completers import SinglePhaseTokenCompleter, TwoPhaseTokenCompleter
 from ttt_discover.rl.data_processing import (
     assemble_training_data,
     remove_constant_reward_groups,
@@ -301,7 +301,8 @@ class Config:
 
     # Two-phase sampling: phase1_max_tokens for token completion
     phase1_max_tokens: int = 26000
-    
+    context_window: int = 32768
+
     # Local model path (avoids HuggingFace API rate limits)
     local_model_path: str | None = None
 
@@ -332,17 +333,31 @@ async def do_group_rollout_and_filter_constant_reward(
     step_idx=-1,
     model_name: str = "",
     phase1_max_tokens: int = 27000,
+    context_window: int = 32768,
 ) -> TrajectoryGroup | None:
     from ttt_discover.tinker_utils.misc_utils import get_tokenizer
 
     tokenizer = get_tokenizer(model_name)
-    
-    policy = TwoPhaseTokenCompleter(
-        sampling_client=sampling_client,
-        tokenizer=tokenizer,
-        phase1_max_tokens=phase1_max_tokens,
-        temperature=temperature,
-    )
+
+    # Auto-detect completer type based on model name:
+    #   - GPT-OSS models → TwoPhaseTokenCompleter (channel-based thinking/final separation)
+    #   - Qwen / other models → SinglePhaseTokenCompleter (plain generation)
+    is_gpt_oss = "gpt-oss" in model_name.lower()
+    if is_gpt_oss:
+        policy = TwoPhaseTokenCompleter(
+            sampling_client=sampling_client,
+            tokenizer=tokenizer,
+            phase1_max_tokens=phase1_max_tokens,
+            temperature=temperature,
+        )
+    else:
+        policy = SinglePhaseTokenCompleter(
+            sampling_client=sampling_client,
+            tokenizer=tokenizer,
+            max_tokens=phase1_max_tokens,
+            temperature=temperature,
+            context_window=context_window,
+        )
 
     trajectory_group = await do_group_rollout(env_group_builder, policy, step_idx)
 
@@ -542,6 +557,7 @@ async def do_sync_training(
                             step_idx=i_batch,
                             model_name=cfg.local_model_path or cfg.model_name,
                             phase1_max_tokens=cfg.phase1_max_tokens,
+                            context_window=cfg.context_window,
                         ),
                         name=f"sample_task_{i}",
                     )
