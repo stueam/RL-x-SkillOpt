@@ -1,217 +1,174 @@
-<p align="center">
-  <h1 align="center">🔬 TTT-Discover</h1>
-  <h3 align="center">Learning to Discover at Test Time</h3>
-</p>
+# TTT-Discover + SkillOpt: Code Generation Agents Research
 
-<p align="center">
-  <a href="https://arxiv.org/abs/2601.16175"><img src="https://img.shields.io/badge/arXiv-2601.16175-b31b1b.svg" alt="arXiv"></a>
-  <a href="https://test-time-training.github.io/discover/"><img src="https://img.shields.io/badge/Project-Page-blue" alt="Project Page"></a>
-  <a href="#"><img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License"></a>
-</p>
+Investigating the division of labor between **weight optimization (RL via TTT-Discover)** and **prompt optimization (SkillOpt)** for LLM code generation.
 
-<p align="center">
-  <b>Mert Yuksekgonul*</b>, <b>Daniel Koceja*</b>, <b>Xinhao Li*</b>, <b>Federico Bianchi*</b><br>
-  Jed McCaleb, Xiaolong Wang, Jan Kautz, Yejin Choi, James Zou†, Carlos Guestrin†, Yu Sun*
-</p>
-
-<p align="center">
-  <em>Stanford · NVIDIA · Astera Institute · UC San Diego · Together AI</em>
-</p>
+**Core finding**: SkillOpt fixes correctness (engineering process); RL pushes solution quality (optimization search). They address different bottlenecks and **do not compete**.
 
 ---
 
-**TTT-Discover** performs reinforcement learning at test time, allowing the LLM to continue training with experience specific to the problem at hand. We achieve **new state-of-the-art** across mathematics, GPU kernels, algorithms, and biology.
+## Project Structure
 
-<p align="center">
-  <img src="docs/assets/figure1.svg" width="800">
-</p>
-
-## Installation
-
-```bash
-pip install ttt-discover
+```
+root/
+├── ttt_discover/               # RL framework (TTT-Discover, weights optimization)
+├── skillopt/                    # Skill optimization framework (prompt optimization)
+│   ├── engine/                  # Training loop
+│   ├── model/                   # LLM backends (OpenAI, DeepSeek, Qwen)
+│   ├── gradient/                # Analyst reflection & merge
+│   ├── prompts/                 # Generic prompt templates
+│   ├── datasets/                # Data loading
+│   └── envs/                    # Built-in env base classes
+├── benchmarks/                  # One directory per problem
+│   ├── cap_set/                 # Cap set in F_3^n (FunSearch-style)
+│   │   ├── problem.py           # Shared domain logic
+│   │   ├── rl_env.py            # TTT-Discover RL environment
+│   │   ├── skillopt_env/        # SkillOpt environment
+│   │   │   ├── evaluator.py     # Gate × Quality evaluator
+│   │   │   ├── adapter.py       # SkillOpt adapter
+│   │   │   ├── rollout.py       # Rollout logic
+│   │   │   ├── dataloader.py    # Data loader
+│   │   │   ├── prompts/         # Analyst prompts
+│   │   │   └── skills/          # Skill documents (initial.md, best.md)
+│   │   ├── config/              # YAML configs
+│   │   └── data/                # Train/val/test splits
+│   ├── circle_packing/          # Circle packing (26 circles in unit square)
+│   ├── erdos_min_overlap/       # Erdős minimum overlap problem
+│   └── rei/                     # Regular Expression Inference
+│       ├── problem.py           # validate_regex, score_generalization
+│       ├── rl_env.py            # RL environment (3 skill variants: none/minimal/best)
+│       ├── skillopt_env/
+│       ├── config/
+│       └── data/                # 10 complex tasks, 100 heldout each
+├── configs/                     # Shared config files
+│   └── _base_/                  # Base config defaults
+├── scripts/                     # Training entry points
+├── outputs/                     # Experiment outputs (SkillOpt)
+├── tinker_log/                  # RL training logs (TTT-Discover)
+├── SkillOpt-main/               # Legacy SkillOpt code (backup)
+├── run_*.py                     # Experiment entry points (see below)
+├── final_report.md              # Comprehensive experiment report
+├── .env                         # API keys
+└── requirements/
 ```
 
-Or from source:
-```bash
-pip install -e .
-```
+## Running Experiments
 
-Set environment variables:
+### RL (TTT-Discover — requires WSL)
 
 ```bash
-export HF_TOKEN="..."
-export TINKER_API_KEY="..."      
-export WANDB_API_KEY="..."       
-export WANDB_ENTITY="..."        
+cd /mnt/c/Users/1/Desktop/TTT-Discover
+source venv/bin/activate
+
+# Circle Packing
+python run_circle_packing.py
+
+# Erdős
+python run_erdos.py
+python run_erdos_rl_small.py
+
+# REI (three variants)
+python run_rei.py                      # Pure RL
+python run_rei_skill_rl_minimal.py     # Minimal Skill → RL
+python run_rei_skill_rl.py             # Full Skill → RL
+
+# Cap Set
+python run_cap_set.py
 ```
 
-## Making your own Environment
+### SkillOpt Training
 
-To use TTT-Discover for your own application, you should create a new environment. Here are the general steps to make your own environment.
+```bash
+python run_cap_set_skillopt.py
+python run_circle_packing_skillopt.py
+python run_erdos_skillopt.py
+python run_rei_skillopt.py
+```
 
-1) Create a new environment that inherits ttt_discover.Environment.
+### Naive Baseline
 
-2) Define a reward evaluator that inherits ttt_discover.BaseRewardEvaluator. Optionally, you can use ttt_discover.SandboxRewardEvaluator to run generated code in sandboxes.
+```bash
+python run_cap_set_baseline.py
+python run_rei_baseline.py
+```
 
-4) (Optional) Add initial state definition to your environment.
+## Benchmark Comparison
 
-5) Define a config and run with ttt_discover.discover!
+| Benchmark | Task | Gate (weak) | RL Correctness | Skill→RL Effect | Winner |
+|---|---|---|---|---|---|
+| **Circle Packing** | Pack 26 circles in unit square | **28%** | 54-75% | **+22pp corr, +0.06 quality** | **Minimal Skill→RL** |
+| **Erdős** | Minimize overlap integral C5 | **72%** | 25-88% | +12pp corr, -0.005 quality | Pure RL |
+| **REI** | Synthesize regex from examples | 0-100% | **100%** | No effect | Pure RL |
+| **Cap Set** | Max subset F_3ⁿ no 3-term AP | 100% | — | SkillOpt baseline only | N/A (too easy) |
 
-Here is a sample skeleton for a new environment.
+### Key Insight
+
+**Skill value = Task requires complex engineering scaffolding / Model can generate valid code unaided**
+
+| Condition | Circle Packing | Erdős | REI |
+|---|---|---|---|
+| Engineering complexity | High (validate, repair, scaffold) | Medium (normalize) | Low (just compile + match) |
+| Weak model Gate | 28% (72% crash) | 72% | 0-100% |
+| Skill effect | **+22pp** | +12pp, -quality | **0** |
+
+## Three-Way RL Comparison
+
+For each benchmark, we compare:
+1. **Pure RL**: No skill injection, model free-form
+2. **Minimal Skill→RL**: Interface + constraints only (no strategy)
+3. **Full Skill→RL**: SkillOpt-optimized strategy injected
+
+| Metric | Circle Packing | Erdős | REI |
+|---|---|---|---|
+| Best variant | Minimal Skill→RL | Pure RL | Pure RL |
+| Correctness | 75% Minimal vs 54% Pure | 54% Minimal vs 42% Pure | 100% all variants |
+| Quality | 2.626 Minimal vs 2.624 Pure | 0.385 Full vs **0.382** Pure | 0.814 Full vs 0.804 Pure |
+
+## API Keys (`.env`)
+
+```
+AZURE_OPENAI_API_KEY=sk-or-v1-...     # OpenRouter key
+AZURE_OPENAI_ENDPOINT=https://openrouter.ai/api/v1
+AZURE_OPENAI_AUTH_MODE=openai_compatible
+DEEPSEEK_API_KEY=sk-f5566...          # DeepSeek key
+TINKER_API_KEY=tml-...                # Tinker API key (for RL)
+```
+
+For DeepSeek target (override in code):
 ```python
-# Import requred ttt_discover objects
-from ttt_discover import Environment, BaseRewardEvaluator, State, DiscoverConfig, discover
-
-
-# Define your reward function
-class YourReward(BaseRewardEvaluator):
-
-    def get_reward(self, code: str, state: State) -> float:
-        # ...add logic here for computing reward
-
-        return {
-            "reward": reward,
-            "correctness": 1.0,
-            "raw_score": raw_score,
-            "msg": f"Success; raw_score={raw_score}",
-            "result_construction": [], # Could reuse
-            "stdout": "", # No stdout
-        }
-
-
-class YourEnv(Environment):
-    reward_function = YourReward
-    state_type = State # You may define your own state if you wish
-
-    def get_question(self) -> str:
-        state_ctx = self.initial_state.to_prompt(100, metric_name="performance")
-
-        return f"""You are an expert mathematician specializing in combinatorial problems and computational geometry. Your task is to ... {state_ctx}."""
-
-
-config = DiscoverConfig(
-    env_type=YourEnv,
-    experiment_name="test-run",
-    wandb_project="",
-)
-
-# Run discovery
-discover(config)
+configure_azure_openai(target_endpoint="https://api.deepseek.com", target_auth_mode="openai_compatible", target_api_key=DEEPSEEK_API_KEY)
+set_target_deployment("deepseek-v4-flash")
 ```
 
-Check [examples/circle_packing](examples/circle_packing) for a fully implemented example.
+## Dependencies
 
+Install WSL + Ubuntu 22.04, then in WSL:
 
-## Key Results
-
-<div align="center">
-
-|                  | **Mathematics**<br>Erdős Overlap ↓ | **Kernel A100**<br>TriMul ↓ | **Kernel H100**<br>TriMul ↓ | **Algorithms**<br>AtCoder ↑ | **Biology**<br>Denoising ↑ |
-|------------------|:----------------------------------:|:---------------------------:|:---------------------------:|:---------------------------:|:--------------------------:|
-| Best Human       | 0.380927                           | 4531 μs                     | 1371 μs                     | 566,997                     | 0.64                       |
-| Prev. Best AI    | 0.380924                           | —                           | —                           | 558,026                     | —                          |
-| **TTT-Discover** | **0.380876**                       | **2198 μs**                 | **1161 μs**                 | **567,062**                 | **0.71**                   |
-
-</div>
-
-## Domains
-
-<details>
-<summary><b>Mathematics</b> — Classic open problems in combinatorics and analysis</summary>
-
-<p align="center">
-  <img src="docs/assets/erdos.png" width="800">
-</p>
-
-<div align="center">
-
-| Task | Erdős Min. Overlap ↓ | Autocorr. (AC1) ↓ | Autocorr. (AC2) ↑ |
-|------|:--------------------:|:-----------------:|:-----------------:|
-| Best Human | 0.380927 | 1.50973 | 0.9015 |
-| Prev. Best AI | 0.380924 | 1.50314 | 0.9610 |
-| **TTT-Discover** | **0.380876** | **1.50287** | 0.9591 |
-
-</div>
-
-</details>
-
-<details>
-<summary><b>Kernel Engineering</b> — GPUMode TriMul competition for triangular matrix multiplication</summary>
-
-<div align="center">
-
-| Task | A100 ↓ | H100 ↓ | B200 ↓ | MI300x ↓ |
-|------|:------:|:------:|:------:|:--------:|
-| Best Human | 4531 μs | 1371 μs | 1005 μs | 2462 μs |
-| **TTT-Discover** | **2198 μs** | **1161 μs** | **905 μs** | **1596 μs** |
-
-</div>
-
-</details>
-
-<details>
-<summary><b>Algorithm Engineering</b> — AtCoder Heuristic Contests on real-world optimization [<a href="https://atcoder.jp/contests/ahc039/submissions/72633477">AHC39</a>] [<a href="https://atcoder.jp/contests/ahc058/submissions/72633508">AHC58</a>]</summary>
-
-<div align="center">
-
-| Task | AHC39 (Geometry) ↑ | AHC58 (Scheduling) ↑ |
-|------|:------------------:|:--------------------:|
-| Best Human | 566,997 | 847,674,723 |
-| Prev. Best AI | 558,026 | 848,373,282 |
-| **TTT-Discover** | **567,062** | **848,414,228** |
-
-</div>
-
-</details>
-
-<details>
-<summary><b>Biology</b> — Single-cell RNA-seq denoising on OpenProblems benchmark</summary>
-
-<div align="center">
-
-| Task | PBMC ↑ | Tabula ↑ |
-|------|:------:|:--------:|
-| Best Human | 0.64 | 0.64 |
-| **TTT-Discover** | **0.71** | **0.73** |
-
-</div>
-
-</details>
-</br>
-
-The environments to reproduce results from our paper are under examples/. To run these, please see [reproducing.md](docs/reproducing.md)
-
-## Submitit
-We provide submitit script to launch ttt-discover as a slurm job across multiple nodes with ray. See [submitit_launch.sh](examples/circle_packing/submitit_launch.sh) for an example.
-
-## Security Notice
-
-It is **recommended** to run all jobs on an isolated network or VPN if using ray. Ray has minimal built-in security protections and should not be exposed on a public or shared network.
-
-## Acknowledgments
-
-This work builds on several outstanding projects and communities:
-
-- **[GPU Mode](https://github.com/gpu-mode)** — Community for GPU kernel optimization and the TriMul competition
-- **[ALE-Bench](https://github.com/PLACEHOLDER)** — AtCoder-based benchmark for LLM evaluation
-- **[Tinker](https://github.com/PLACEHOLDER)** — LLM training recipes and RL framework
-
-## Citation
-
-```bibtex
-@article{ttt-discover2026,
-  title   = {Learning to Discover at Test Time},
-  author  = {Yuksekgonul, Mert and Koceja, Daniel and Li, Xinhao 
-             and Bianchi, Federico and McCaleb, Jed and Wang, Xiaolong 
-             and Kautz, Jan and Choi, Yejin and Zou, James 
-             and Guestrin, Carlos and Sun, Yu},
-  journal = {arXiv preprint arXiv:2601.16175},
-  year    = {2026}
-}
+```bash
+cd /mnt/c/Users/1/Desktop/TTT-Discover
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements/requirements.txt
 ```
 
-## License
+## Experiment Logs
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- **RL logs**: `tinker_log/<experiment_name>/`
+- **SkillOpt logs**: `SkillOpt-main/outputs/<experiment_name>/`
+- **Consolidated report**: `final_report.md`
 
+## Key Files for Each Benchmark
+
+| File | Purpose |
+|------|---------|
+| `benchmarks/<name>/problem.py` | Shared domain logic |
+| `benchmarks/<name>/rl_env.py` | RL environment (TTT-Discover) |
+| `benchmarks/<name>/skillopt_env/evaluator.py` | Gate × Quality evaluator |
+| `benchmarks/<name>/skillopt_env/adapter.py` | SkillOpt adapter |
+| `benchmarks/<name>/skillopt_env/rollout.py` | Rollout execution |
+| `benchmarks/<name>/skillopt_env/prompts/` | Analyst prompts (error/success) |
+| `benchmarks/<name>/skillopt_env/skills/` | Skill documents |
+| `benchmarks/<name>/config/default.yaml` | SkillOpt config |
+| `benchmarks/<name>/data/` | Train/val/test splits |
+| `run_<name>.py` | RL entry point |
+| `run_<name>_skillopt.py` | SkillOpt entry point |
+| `run_<name>_baseline.py` | Baseline evaluation |

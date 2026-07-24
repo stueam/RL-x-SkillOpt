@@ -31,6 +31,18 @@ _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 _PROJECT_ROOT = os.path.dirname(_SCRIPT_DIR)
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
+_PARENT_ROOT = os.path.dirname(_PROJECT_ROOT)
+if _PARENT_ROOT not in sys.path:
+    sys.path.insert(0, _PARENT_ROOT)
+
+try:
+    from dotenv import load_dotenv
+    _dotenv_path = os.path.join(_PROJECT_ROOT, ".env")
+    if os.path.isfile(_dotenv_path):
+        load_dotenv(_dotenv_path)
+        print(f"[dotenv] Loaded {_dotenv_path}", file=sys.stderr, flush=True)
+except ImportError:
+    pass
 
 from skillopt.model.common import default_model_for_backend, normalize_backend_name
 
@@ -70,6 +82,11 @@ def _register_builtins() -> None:
     except ImportError:
         pass
     try:
+        from skillopt.envs.tttdiscover_math.adapter import TTTDiscoverMathAdapter
+        _ENV_REGISTRY["tttdiscover_math"] = TTTDiscoverMathAdapter
+    except ImportError:
+        pass
+    try:
         from skillopt.envs.mmrb.adapter import MMRBAdapter
         _ENV_REGISTRY["mmrb"] = MMRBAdapter
     except ImportError:
@@ -100,13 +117,23 @@ def _register_builtins() -> None:
     except ImportError:
         pass
     try:
-        from skillopt.envs.circlepacking.adapter import CirclePackingAdapter
+        from benchmarks.circle_packing.skillopt_env.adapter import CirclePackingAdapter
         _ENV_REGISTRY["circlepacking"] = CirclePackingAdapter
     except ImportError:
         pass
     try:
-        from skillopt.envs.erdos_min_overlap.adapter import ErdosMinOverlapAdapter
+        from benchmarks.erdos_min_overlap.skillopt_env.adapter import ErdosMinOverlapAdapter
         _ENV_REGISTRY["erdos_min_overlap"] = ErdosMinOverlapAdapter
+    except ImportError:
+        pass
+    try:
+        from benchmarks.cap_set.skillopt_env.adapter import CapSetAdapter
+        _ENV_REGISTRY["cap_set"] = CapSetAdapter
+    except ImportError:
+        pass
+    try:
+        from benchmarks.rei.skillopt_env.adapter import ReiAdapter
+        _ENV_REGISTRY["rei"] = ReiAdapter
     except ImportError:
         pass
 

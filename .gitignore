@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.so
+
+# Virtual environment
+venv/
+.env
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Outputs
+outputs/
+tinker_log/
+SkillOpt-main/ckpt/
+SkillOpt-main/outputs/
+
+# Logs and temp files
+*.log
+*.jsonl
+*.stdout
+*.pkl
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large generated data
+benchmarks/rei/data_bak/

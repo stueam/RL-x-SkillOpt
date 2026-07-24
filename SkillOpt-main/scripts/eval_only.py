@@ -74,6 +74,11 @@ def _register_builtins() -> None:
     except ImportError:
         pass
     try:
+        from skillopt.envs.tttdiscover_math.adapter import TTTDiscoverMathAdapter
+        _ENV_REGISTRY["tttdiscover_math"] = TTTDiscoverMathAdapter
+    except ImportError:
+        pass
+    try:
         from skillopt.envs.mmrb.adapter import MMRBAdapter
         _ENV_REGISTRY["mmrb"] = MMRBAdapter
     except ImportError:

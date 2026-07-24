@@ -122,6 +122,98 @@ class SingleProblemDatasetBuilder(RLDatasetBuilder):
         )
 
 
+class MultiProblemDataset(RLDataset):
+    """Dataset that rotates through a list of problem types, one per batch/epoch.
+
+    Each call to ``get_batch(i)`` switches to problem ``problem_type_list[i % N]``.
+    When the problem changes, the PUCT sampler is reset to build a fresh search tree
+    for the new problem, preventing reward hacking via single-answer memorization.
+    """
+
+    def __init__(
+        self,
+        config: DatasetConfig,
+        renderer: renderers.Renderer,
+        sampler: StateSampler,
+        problem_type_list: list[str],
+    ):
+        self.config = config
+        self.batch_size = config.batch_size
+        self.group_size = config.group_size
+        self.renderer = renderer
+        self.sampler = sampler
+        self.problem_type_list = problem_type_list
+        self._current_idx = -1
+
+    def _ensure_problem(self, idx: int) -> None:
+        if idx == self._current_idx:
+            return
+        self._current_idx = idx
+        problem = self.problem_type_list[idx % len(self.problem_type_list)]
+        self.config.problem_type = problem
+        if hasattr(self.sampler, "reset_for_problem"):
+            self.sampler.reset_for_problem(problem)
+
+    def get_batch(self, index: int) -> Sequence[EnvGroupBuilder]:
+        self._ensure_problem(index)
+        states = self.sampler.sample_states(self.batch_size)
+        return [self._make_env_group_builder(state, self.group_size) for state in states]
+
+    def flush(self, step: int | None = None):
+        self.sampler.flush(step)
+
+    def __len__(self) -> int:
+        return len(self.problem_type_list)
+
+    def _make_env_group_builder(
+        self, initial_state: State, group_size: int
+    ) -> ProblemGroupBuilder:
+        env_type = self.config.env_type
+        if env_type is None:
+            raise ValueError("config.env_type must be set")
+        logging_name = getattr(env_type, "env_name", env_type.__name__)
+        return ProblemGroupBuilder(
+            env_thunk=partial(
+                env_type,
+                self.renderer,
+                initial_state=initial_state,
+                sampler=self.sampler,
+                config=self.config,
+            ),
+            num_envs=group_size,
+            logging_name=logging_name,
+        )
+
+
+@chz.chz
+class MultiProblemDatasetBuilder(RLDatasetBuilder):
+    config: DatasetConfig
+    problem_type_list: list[str]
+
+    async def __call__(self) -> MultiProblemDataset:
+        if not self.config.problem_type:
+            raise ValueError("problem_type is required")
+        if not self.config.log_path:
+            raise ValueError("log_path is required for dataset")
+
+        tokenizer = get_tokenizer(self.config.model_name_for_tokenizer)
+        renderer = renderers.get_renderer(self.config.renderer_name, tokenizer=tokenizer)
+
+        sampler = get_or_create_sampler_with_default(
+            log_path=self.config.log_path,
+            env_type=self.config.env_type,
+            batch_size=self.config.batch_size,
+            problem_type=self.config.problem_type,
+        )
+
+        return MultiProblemDataset(
+            config=self.config,
+            renderer=renderer,
+            sampler=sampler,
+            problem_type_list=list(self.problem_type_list),
+        )
+
+
 def get_single_problem_dataset_builder(
     config: DatasetConfig,
     **kwargs,
@@ -134,6 +226,25 @@ def get_single_problem_dataset_builder(
         raise ValueError("log_path is required for dataset")
 
     return SingleProblemDatasetBuilder(config=config)
+
+
+def get_multi_problem_dataset_builder(
+    config: DatasetConfig,
+    problem_type_list: list[str],
+    **kwargs,
+) -> RLDatasetBuilder:
+    """Get a dataset builder that rotates through multiple problem types.
+
+    Each batch index maps to a different problem, resetting the PUCT sampler
+    per problem to prevent single-answer memorization.
+    """
+    if not config.log_path:
+        raise ValueError("log_path is required for dataset")
+
+    return MultiProblemDatasetBuilder(
+        config=config,
+        problem_type_list=problem_type_list,
+    )
 
 
 def last_codeblock_postprocess(input_text, codeblock_seps=['python', 'cpp', 'java', 'cuda'], last_response_strict=True, keep_separators=True):

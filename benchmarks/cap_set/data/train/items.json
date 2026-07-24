@@ -1,0 +1,6 @@
+[
+  {"id": "cap_n5_train_0", "n": 5, "seed": 42, "optimal": 45},
+  {"id": "cap_n5_train_1", "n": 5, "seed": 43, "optimal": 45},
+  {"id": "cap_n5_train_2", "n": 5, "seed": 44, "optimal": 45},
+  {"id": "cap_n5_train_3", "n": 5, "seed": 45, "optimal": 45}
+]

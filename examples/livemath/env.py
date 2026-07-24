@@ -42,11 +42,6 @@ def extract_answer_letter(response: str) -> str:
 
 
 class LiveMathRewardEvaluator(SandboxRewardEvaluator):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.problem_data = None
-        self.correct_answer = None
-
     def get_program_entrypoint(self) -> str:
         return "solve"
 
@@ -192,13 +187,13 @@ def discover_livemath(problem_type: str = "0"):
         eval_timeout=300,
         experiment_name=f"test-livemath-{problem_type}-run",
         wandb_project="",
-        num_epochs=10,
-        group_size=8,
-        groups_per_batch=2,
-        phase1_max_tokens=8000,
+        phase1_max_tokens=13000,
         learning_rate=4e-5,
         temperature=1.0,
         kl_penalty_coef=0.1,
+        num_epochs=4,
+        group_size=16,
+        groups_per_batch=2,
     )
     discover(config)
 

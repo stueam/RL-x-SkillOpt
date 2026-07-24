@@ -1,0 +1,7 @@
+[
+  {"id": "cap_n6_test_0", "n": 6, "seed": 200, "optimal": 112},
+  {"id": "cap_n6_test_1", "n": 6, "seed": 201, "optimal": 112},
+  {"id": "cap_n6_test_2", "n": 6, "seed": 202, "optimal": 112},
+  {"id": "cap_n6_test_3", "n": 6, "seed": 203, "optimal": 112},
+  {"id": "cap_n6_test_4", "n": 6, "seed": 204, "optimal": 112}
+]

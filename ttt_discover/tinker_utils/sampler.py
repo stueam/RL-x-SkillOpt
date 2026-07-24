@@ -125,6 +125,28 @@ class PUCTSampler(StateSampler):
                 self._states.append(state)
             self._save(self._current_step)
 
+    def reset_for_problem(self, problem_type: str) -> None:
+        """Clear all state and reinitialize for a new problem type.
+
+        Called when switching problems in multi-problem training mode.
+        Preserves the PUCT hyperparameters but clears the search tree.
+        """
+        with self._lock:
+            self.problem_type = problem_type
+            self._states.clear()
+            self._initial_states.clear()
+            self._last_sampled_states.clear()
+            self._last_sampled_indices.clear()
+            self._n.clear()
+            self._m.clear()
+            self._T = 0
+            self._last_scale = 1.0
+            self._last_puct_stats.clear()
+            for _ in range(self.batch_size):
+                state = create_initial_state(self.env_type, self.problem_type)
+                self._initial_states.append(state)
+                self._states.append(state)
+
     def _load(self, step: int):
         file_path = _sampler_file_for_step(self.file_path, step)
         if not os.path.exists(file_path):

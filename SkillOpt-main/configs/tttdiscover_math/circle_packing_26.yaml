@@ -1,0 +1,48 @@
+_base_: ../_base_/default.yaml
+
+model:
+  target_backend: openai_chat
+  target: ttt-rl-circlepacking-26
+  target_azure_openai_endpoint: "http://localhost:8001/v1"
+  target_azure_openai_auth_mode: openai_compatible
+
+train:
+  train_size: 4
+  batch_size: 2
+  num_epochs: 2
+
+gradient:
+  minibatch_size: 4
+  merge_batch_size: 4
+  analyst_workers: 4
+
+optimizer:
+  learning_rate: 4
+  min_learning_rate: 2
+  lr_scheduler: cosine
+  use_slow_update: false
+  use_meta_skill: false
+
+high_score_buffer:
+  size: 8
+  inject_n: 2
+
+evaluation:
+  use_gate: true
+  gate_metric: hard
+  sel_env_num: 2
+  test_env_num: 4
+  eval_test: true
+
+env:
+  name: tttdiscover_math
+  skill_init: skillopt/envs/tttdiscover_math/skills/initial.md
+  problem_type: circle_packing_26
+  discovery_train_size: 4
+  discovery_val_size: 2
+  discovery_test_size: 4
+  num_circles: 26
+  circle_target: 2.636
+  exec_timeout: 600
+  workers: 2
+  max_completion_tokens: 4096

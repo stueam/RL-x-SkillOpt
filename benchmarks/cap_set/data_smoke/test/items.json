@@ -1,0 +1,5 @@
+[
+  {"id": "cap_n4_test_0", "n": 4, "seed": 200, "optimal": 20},
+  {"id": "cap_n4_test_1", "n": 4, "seed": 201, "optimal": 20},
+  {"id": "cap_n4_test_2", "n": 4, "seed": 202, "optimal": 20}
+]
